@@ -22,7 +22,7 @@ class TransparentWindow(QMainWindow):
         widw_width = int(scrWid/16)
         widw_height = int(scrHei*0.75)
         a = int(widw_height/20)
-        self.setGeometry(0, 0, widw_width, widw_height)
+        self.setGeometry(0, 0,scrWid, scrHei)
         
         # 创建中央部件
         central_widget = QWidget()
@@ -50,7 +50,9 @@ class TransparentWindow(QMainWindow):
             
             self.line.setStyleSheet("""
                 QLabel {
-                    color: blue;
+                    color: rgb(227, 255, 25);
+                    border: 4px double yellow;
+                    background-color: rgba(128, 200, 192, 127);
                     """+f"""
                     font-size: {a}px;"""+
             '}'
@@ -60,39 +62,39 @@ class TransparentWindow(QMainWindow):
             lines.append(self.line)
         
         
-        # 添加移动按钮
-        self.move_btn = QLabel("<>", self)
-        self.move_btn.setStyleSheet("""
-            QLabel {
-                background-color: rgba(255, 255, 255, 127);
-                color: rgba(50, 50, 50, 1);
-                font-size: 12px;
-                padding: 4px;
-            }
-            QLabel:hover {
-                background-color: white;
-            }
-        """)
-        self.move_btn.setGeometry(0, 0, 20, 20)
-        self.move_btn.setAlignment(Qt.AlignCenter)
+#        # 添加移动按钮
+#        self.move_btn = QLabel("<>", self)
+#        self.move_btn.setStyleSheet("""
+#            QLabel {
+#                background-color: rgba(255, 255, 255, 127);
+#                color: rgba(50, 50, 50, 1);
+#                font-size: 12px;
+#                padding: 4px;
+#            }
+#            QLabel:hover {
+#                background-color: white;
+#            }
+#        """)
+#        self.move_btn.setGeometry(0, 0, 20, 20)
+#        self.move_btn.setAlignment(Qt.AlignCenter)
 
         # 添加关闭按钮
-        self.close_btn = QLabel("×", self)
-        self.close_btn.setStyleSheet("""
-            QLabel {
-                background-color: rgba(200, 50, 50, 0);
-                color: white;
-                font-size: 20px;
-                border-radius: 0px;
-                padding: 2px 8px;
-            }
-            QLabel:hover {
-                background-color: rgba(255, 0, 0, 220);
-            }
-        """)
-        self.close_btn.setAlignment(Qt.AlignCenter)
-        self.close_btn.setGeometry(widw_width-30, 0, 30, 30)
-        self.close_btn.mousePressEvent = lambda e: self.close()
+#        self.close_btn = QLabel("×", self)
+#        self.close_btn.setStyleSheet("""
+#            QLabel {
+#                background-color: rgba(200, 50, 50, 10);
+#                color: white;
+#                font-size: 20px;
+#                border-radius: 0px;
+#                padding: 2px 8px;
+#            }
+#            QLabel:hover {
+#                background-color: rgba(255, 0, 0, 220);
+#            }
+#        """)
+#        self.close_btn.setAlignment(Qt.AlignCenter)
+#        self.close_btn.setGeometry(scrWid-50, scrHei-50, 10, 30)
+#        self.close_btn.mousePressEvent = lambda e: self.close()
 
         #创建指示器
         self.point = QLabel()
