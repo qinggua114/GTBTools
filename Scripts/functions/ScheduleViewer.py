@@ -40,41 +40,30 @@ print(schedules)
 lines = []
 
 class TransparentWindow(QMainWindow):
+    screen = 0;scrSize = 0;scrWid = 0;scrHei = 0;widw_width = 0;widw_height = 0
     def __init__(self):
         super().__init__()
         
         # 设置窗口无边框和透明
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        
+        self.screen = QApplication.primaryScreen()
+        self.scrSize = self.screen.geometry()
+        self.scrWid = self.scrSize.width()
+        self.scrHei = self.scrSize.height()
+        self.widw_width = int(self.scrWid/16)
+        self.widw_height = int(self.scrHei*0.75)
         # 设置窗口大小
-        screen = QApplication.primaryScreen()
-        scrSize = screen.geometry()
-        scrWid = scrSize.width()
-        scrHei = scrSize.height()
-        widw_width = int(scrWid/16)
-        widw_height = int(scrHei*0.75)
-        a = int(widw_height/20)
-        self.setGeometry(0, 0,scrWid, scrHei)
+        a = int(self.widw_height/20)
+        self.setGeometry(0, 0,self.scrWid, self.scrHei)
         
         # 创建中央部件
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         
         layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignRight | Qt.AlignTop)
+        layout.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         central_widget.setLayout(layout)
-
-        # 创建布局和标签
-        self.label = QLabel(self)
-        self.label.setAlignment(Qt.AlignRight)
-        self.label.setStyleSheet("""
-            QLabel {
-                background-color: rgba(255, 255, 255, 0);"""+f"""
-                font-size: {a}px;"""+
-            '}'
-        )
-        self.label.setGeometry(0, 0, widw_width, widw_height)
 
         #显示星期
         self.weekdayView = QLabel(weekdays[weekday], self)
@@ -122,7 +111,7 @@ class TransparentWindow(QMainWindow):
                 background-color: white;
             }
         """)
-        self.lock_btn.setGeometry(scrWid-60, 0, 30, 30)
+        self.lock_btn.setGeometry(self.scrWid-60, 0, 30, 30)
         self.lock_btn.setAlignment(Qt.AlignCenter)
         self.lock_btn.mousePressEvent = lambda e: self.shiftLockstatu()
 
@@ -141,8 +130,25 @@ class TransparentWindow(QMainWindow):
             }
         """)
         self.close_btn.setAlignment(Qt.AlignCenter)
-        self.close_btn.setGeometry(scrWid-30, 0, 30, 30)
+        self.close_btn.setGeometry(self.scrWid-30, 0, 30, 30)
         self.close_btn.mousePressEvent = lambda e: self.close()
+
+        # 添加隐藏按钮
+        self.hide_btn = QLabel("V", self)
+        self.hide_btn.setStyleSheet("""
+            QLabel {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: rgba(50, 50, 50, 1);
+                font-size: 16px;
+                padding: 4px;
+            }
+            QLabel:hover {
+                background-color: white;
+            }
+        """)
+        self.hide_btn.setGeometry(self.scrWid-90, 0, 30, 30)
+        self.hide_btn.setAlignment(Qt.AlignCenter)
+        self.hide_btn.mousePressEvent = lambda e: self.shiftHidestatu()
 
         #创建指示器
         self.point = QLabel()
@@ -151,18 +157,37 @@ class TransparentWindow(QMainWindow):
         # 用于窗口拖动的变量
         self.oldPos = None
 
-    lockStatu:bool = 0
-    lockStatuView = {1 : 'U' , 0 : 'L'}
+    #修改锁定状态
+    locked:bool = 1
+    lockStatuView = {0 : 'U' , 1 : 'L'}
     def shiftLockstatu(self):
-        self.lockStatu = self.lockStatu == 0
-        self.lock_btn.setText(self.lockStatuView[self.lockStatu])
-        return
+        self.locked = self.locked == 0
+        self.lock_btn.setText(self.lockStatuView[self.locked])
+
+    #隐藏窗口
+    hid:bool = 0
+    hideStatuView = {0 : 'V' , 1 : 'H'}
+    def shiftHidestatu(self):
+        if not self.hid:
+            self.hideWindow()
+        else:
+            self.viewWindow()
+        self.hid = self.hid == 0
+        self.hide_btn.setText(self.hideStatuView[self.hid])
+    def hideWindow(self):
+        self.setGeometry(self.scrWid-30, self.scrHei-30, self.scrWid, self.scrHei)
+        self.hide_btn.setGeometry(0, 0, 30, 30)
+    def viewWindow(self):
+        self.setGeometry(0, 0, self.scrWid, self.scrHei)
+        self.hide_btn.setGeometry(self.scrWid-90, 0, 30, 30)
+    
+    #处理鼠标移动
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.oldPos = event.globalPos()
 
     def mouseMoveEvent(self, event):
-        if self.lockStatu:
+        if not self.locked:
             if self.oldPos:
                 delta = event.globalPos() - self.oldPos
                 self.move(self.x() + delta.x(), self.y() + delta.y())
